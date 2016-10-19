@@ -1,7 +1,26 @@
 from PIL import Image
 from skimage import color
-from clusterer import k_means
+from clusterer import *
 import numpy as np
+
+orig_term_colours={
+    "color0":  "#000000",
+    "color8":  "#555753",
+    "color1":  "#ff6565",
+    "color9":  "#ff8d8d",
+    "color2":  "#93d44f",
+    "color10": "#c8e7a8",
+    "color3":  "#eab93d",
+    "color11": "#ffc123",
+    "color4":  "#204a87",
+    "color12": "#3465a4",
+    "color5":  "#ce5c00",
+    "color13": "#f57900",
+    "color6":  "#89b6e2",
+    "color14": "#46a4ff",
+    "color7":  "#cccccc",
+    "color15": "#ffffff"
+    }
 
 def get_colours(file_name, thumb_size):
     img=Image.open(file_name)
@@ -32,6 +51,20 @@ def extract_colours_from_image(file_name, num_colours, img_sample_size, min_dist
                 return_colours[j].append(int(np.round(outed[i][j][k]*255)))
     return return_colours
 
+def scale_colours(colours, minval, maxval): 
+    hcolours=[]
+    for colour in colours:
+        hcolours.append(rgb2hsv(colour))
+    minv=min(hcolours, key=lambda x:x[2])[2]
+    maxv=max(hcolours, key=lambda x:x[2])[2]
+    for i in range(len(hcolours)):
+        hcolours[i][2]=scale(hcolours[i][2], minv, maxv, minval, maxval)
+    scaled_colours=[]
+    for colour in hcolours:
+        scaled_colours.append(hsv2rgb(colour))
+    return scaled_colours
+
+
 def rgb2hsv(colour):
     r=colour[0]/255.
     g=colour[1]/255.
@@ -50,6 +83,16 @@ def rgb2hsv(colour):
 
     v=cmax
     return [h, s, v]
+
+def find_closest(hex_col, colours):
+    closest_dist=float('inf')
+    closest=None
+    for colour in colours:
+        dist=distance(hex2rgb(hex_col), colour)
+        if dist<closest_dist:
+            closest_dist=dist
+            closest=colour
+    return closest
 
 def hsv2rgb(colour):
     h, s, v=colour
@@ -97,4 +140,26 @@ def get_hue(colour):
 def scale(v, vmin, vmax, mmin, mmax):
     return ((v-vmin)/(vmax-vmin)*(mmax-mmin)+mmin)
 
+def hex2rgb(hex_string):
+    return list(int(hex_string.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
 
+def rgb2hex(colour):
+    return "#%02x%02x%02x" % tuple(i for i in colour)
+
+def prepare_for_terminal(file_name, separate_bnw=False):
+    nums=16
+    if separate_bnw: nums=18
+    colours=scale_colours(extract_colours_from_image(file_name, nums, (200, 200), 1), 0.1, 0.95)
+    colours.sort(key=lambda x: rgb2hsv(x)[2])
+    if separate_bnw:
+        background=colours.pop(0)
+        foreground=colours.pop(-1)  
+    else:
+        background=colours[0]
+        foreground=colours[-1] 
+    colour_dict={}
+    colour_dict['foreground']=rgb2hex(foreground)
+    colour_dict['background']=rgb2hex(background)
+    for key in orig_term_colours:
+        colour_dict[key]=rgb2hex(colours.pop(colours.index(find_closest(orig_term_colours[key], colours))))
+    return colour_dict

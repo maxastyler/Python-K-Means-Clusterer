@@ -14,19 +14,7 @@ vmax=0.9
 def main():
     pygame.init()
     screen=pygame.display.set_mode(screen_size)
-    colours=extract_colours_from_image(str(sys.argv[1]), num_colours, extract_size, difference)
-    hcolours=[]
-    for colour in colours:
-        hcolours.append(rgb2hsv(colour))
-    minv=min(hcolours, key=lambda x:x[2])[2]
-    maxv=max(hcolours, key=lambda x:x[2])[2]
-    for i in range(len(hcolours)):
-        hcolours[i][2]=scale(hcolours[i][2], minv, maxv, 0.1, 0.9)
-    colours.clear()
-    for colour in hcolours:
-        colours.append(hsv2rgb(colour))
-
-    colours.sort(key=get_hue)
+    print(prepare_for_terminal(str(sys.argv[1]), True))
 
     running=True
     while running:
