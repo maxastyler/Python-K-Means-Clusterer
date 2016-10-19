@@ -1,7 +1,7 @@
 from extractor import *
 from tempfile import mkstemp
 from shutil import move
-from os import remove, close, path.expanduser
+from os import remove, close, path
 
 def replace_colours(file_path, colour_dict):
     #Create temp file
