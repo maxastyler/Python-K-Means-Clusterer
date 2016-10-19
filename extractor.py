@@ -32,5 +32,69 @@ def extract_colours_from_image(file_name, num_colours, img_sample_size, min_dist
                 return_colours[j].append(int(np.round(outed[i][j][k]*255)))
     return return_colours
 
-#print(k_means(get_colours("akira.jpg", (100, 100)), 3, 2))
-#get_colours("akira.jpg", (10, 10))
+def rgb2hsv(colour):
+    r=colour[0]/255.
+    g=colour[1]/255.
+    b=colour[2]/255.
+    cmax=max(r, max(g, b))
+    cmin=min(r, min(g, b))
+    delta=cmax-cmin
+    if delta==0: h=0
+    else:
+        if cmax==r: h=60.*(((g-b)/delta)%6.)
+        elif cmax==g: h=60.*((b-r)/delta+2.)
+        else: h=60.*((r-g)/delta+4.)
+
+    if cmax==0: s=0.
+    else: s=delta/cmax
+
+    v=cmax
+    return [h, s, v]
+
+def hsv2rgb(colour):
+    h, s, v=colour
+    c=v*s
+    x=c*(1-abs((h/60.)%2.-1))
+    m=v-c
+    if h>=0 and h<60.:
+        r=c
+        g=x
+        b=0
+    elif h>=60. and h<120.:
+        r=x
+        g=c
+        b=0
+    elif h>=120. and h<180.:
+        r=0
+        g=c
+        b=x
+    elif h>=180. and h<240.:
+        r=0
+        g=x
+        b=c
+    elif h>=240. and h<300.:
+        r=x
+        g=0
+        b=c
+    else:
+        r=c
+        g=0
+        b=x
+    return [int(round((r+m)*255.)), int(round((g+m)*255.)), int(round((b+m)*255.))]
+
+def get_hue(colour):
+    r, g, b = colour
+    mini = min(r, min(g, b))
+    maxi = max(r, max(g, b))
+    if (maxi==mini): return int(round(360*r/255.))
+    if maxi==r: hue = (g-b)/(maxi-mini)
+    elif maxi==g: hue = 2.+(b-r)/(maxi-mini)
+    else: hue = 4. + (r-g)/(maxi-mini)
+    hue*=60
+    if hue<0: hue+=360
+    return int(round(hue))
+
+def scale(v, vmin, vmax, mmin, mmax):
+    return ((v-vmin)/(vmax-vmin)*(mmax-mmin)+mmin)
+
+
