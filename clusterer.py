@@ -17,7 +17,6 @@ def average_points(list_of_points):
 
 #function returns a list of points which are the centers 
 def k_means(points, num_means, min_distance):
-    min_distance=float('inf')
     above_distance=True
     new_means=sample(points, num_means)   
     mean_points={}
@@ -37,7 +36,7 @@ def k_means(points, num_means, min_distance):
         old_means=new_means.copy()
         new_means.clear()
         for key in old_means: 
-            new_means.append(average_points(mean_points[key]))
+            new_means.append(tuple(average_points(mean_points[key])))
             if distance(key, new_means[-1])>=min_distance:
                 above_distance=True
         mean_points.clear() 
