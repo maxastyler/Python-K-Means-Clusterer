@@ -148,12 +148,12 @@ def rgb2hex(colour):
 
 def prepare_for_terminal(file_name, separate_bnw=False):
     nums=16
-    if separate_bnw: nums=18
+    #if separate_bnw: nums=18
     colours=scale_colours(extract_colours_from_image(file_name, nums, (200, 200), 1), 0.1, 0.95)
     colours.sort(key=lambda x: rgb2hsv(x)[2])
     if separate_bnw:
-        background=colours.pop(0)
-        foreground=colours.pop(-1)  
+        background=average(colours[0], (0, 0, 0))
+        foreground=colours.pop[-1]
     else:
         background=colours[0]
         foreground=colours[-1] 
