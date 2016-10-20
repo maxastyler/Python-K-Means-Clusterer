@@ -28,4 +28,4 @@ def replace_colours(file_path, colour_dict):
     #Move new file
     move(abs_path, file_path)
 
-replace_colours(path.expanduser(str(sys.argv[1])), prepare_for_terminal(path.expanduser(str(sys.argv[2])), True))
+replace_colours(path.realpath(path.expanduser(str(sys.argv[1]))), prepare_for_terminal(path.realpath(path.expanduser(str(sys.argv[2]))), True))
